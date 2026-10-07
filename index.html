@@ -55,9 +55,11 @@ h1,h2,.px{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
 .ach span.i{font-size:30px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
 .modal.on{display:flex}
-.box{background:var(--wood);border:5px solid var(--wood2);border-radius:12px;padding:20px;max-width:420px;width:100%;text-align:center}
+.box{background:var(--wood);border:5px solid var(--wood2);border-radius:12px;padding:20px;max-width:420px;width:100%;max-height:95vh;overflow-y:auto;text-align:center}
 .box h2{color:var(--gold);font-size:15px;line-height:1.6;margin-top:0}
 .box .btn{margin:6px}
+.certificate{display:block;width:100%;max-height:42vh;object-fit:contain;margin:12px auto}
+.certificate[hidden]{display:none}
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--gold);color:var(--ink);padding:8px 16px;border-radius:8px;border:3px solid var(--wood2);z-index:20;display:none;font-size:22px}
 #bye{text-align:center;padding:12vh 16px}
 #bye h1{color:var(--gold);font-size:clamp(16px,4vw,26px);line-height:1.6}
@@ -114,7 +116,7 @@ h1,h2,.px{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
 </section>
 
 <div class="modal" id="mExit"><div class="box"><h2>Exit the game?</h2><button class="btn r" id="exYes">Exit</button><button class="btn" id="exNo">Stay</button></div></div>
-<div class="modal" id="mWin"><div class="box"><h2 id="wT">Level complete!</h2><p id="wB"></p><button class="btn g" id="wNext">Next level</button><button class="btn" id="wLv">Levels</button><button class="btn" id="wMenu">Main menu</button></div></div>
+<div class="modal" id="mWin"><div class="box"><h2 id="wT">Level complete!</h2><p id="wB"></p><img id="wCert" class="certificate" src="./cert.jpg" alt="Certificate of achievement" hidden><button class="btn g" id="wNext">Next level</button><button class="btn" id="wLv">Levels</button><button class="btn" id="wMenu">Main menu</button></div></div>
 <div class="modal" id="mReset"><div class="box"><h2>Erase all progress?</h2><p>Coins, stars and achievements will be lost.</p><button class="btn r" id="rYes">Erase</button><button class="btn" id="rNo">Cancel</button></div></div>
 <div id="toast" role="status"></div>
 
@@ -175,11 +177,14 @@ function build(l){const N=l.s,dirs=DIRS.slice(0,l.d);
    ws.sort((a,b)=>l.w.indexOf(a.t)-l.w.indexOf(b.t));return{g,ws}}}
  return null}
 
-function play(i){const l=LV[i],b=build(l);G={i,l,g:b.g,ws:b.ws,t:0,hints:0,sel:null,drag:false,done:false};
+function play(i){if(!Number.isInteger(i)||i<0||i>=LV.length){toast('That level is not available');return false}
+ const l=LV[i];let b=null;for(let attempt=0;attempt<3&&!b;attempt++)b=build(l);
+ if(!b){toast('Could not build this level. Please try again.');return false}
+ stopT();G={i,l,g:b.g,ws:b.ws,t:0,hints:0,sel:null,drag:false,done:false};
  $('#gt').textContent='Level '+(i+1)+': '+l.n;
  const gr=$('#grid');gr.style.setProperty('--n',l.s);gr.style.gridTemplateColumns=`repeat(${l.s},auto)`;gr.innerHTML='';
  for(let r=0;r<l.s;r++)for(let c=0;c<l.s;c++){const d=document.createElement('div');d.className='c';d.dataset.r=r;d.dataset.c=c;d.textContent=G.g[r][c];gr.appendChild(d)}
- drawWords();show('game');$('#tm').parentElement.style.display=S.o.tmr?'':'none';tick();stopT();timer=setInterval(()=>{G.t++;tick()},1000)}
+ drawWords();show('game');$('#tm').parentElement.style.display=S.o.tmr?'':'none';tick();timer=setInterval(()=>{G.t++;tick()},1000);return true}
 function stopT(){clearInterval(timer);timer=null}
 function tick(){const t=G?G.t:0;$('#tm').textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0')}
 function drawWords(){const u=$('#wl');u.innerHTML='';G.ws.forEach(w=>{const li=document.createElement('li');li.className=w.found?'d':'';li.textContent=S.o.list||w.found?w.t:'•'.repeat(w.k.length);u.appendChild(li)});$('#left').textContent=G.ws.filter(w=>!w.found).length}
@@ -205,14 +210,15 @@ $('#restart').onclick=()=>play(G.i);
 
 function win(){G.done=true;stopT();const i=G.i,tot=G.ws.reduce((a,w)=>a+w.k.length,0),par=tot*2.2;
  let st=G.t<=par?3:G.t<=par*2?2:1;if(G.hints>1)st=Math.max(1,st-1);
- const bonus=st*50;S.coins+=bonus;S.stars[i]=Math.max(S.stars[i]||0,st);if(S.un<=i+1&&i+1<LV.length)S.un=i+2;
+ const bonus=st*50;S.coins+=bonus;S.stars[i]=Math.max(S.stars[i]||0,st);if(i+1<LV.length)S.un=Math.max(S.un,i+2);
  if(i==0)unlock('l1');if(G.t<60)unlock('speed');if(!G.hints)unlock('nohint');if(st==3)unlock('star3');if(S.coins>=500)unlock('rich');
  if(LV.every((_,k)=>S.stars[k]))unlock('master');save();
  beep(784,.15);setTimeout(()=>beep(988,.15),150);setTimeout(()=>beep(1175,.3),300);
- $('#wT').textContent='Level '+(i+1)+' complete!';
+ const finalLevel=i===LV.length-1;
+ $('#wT').textContent=finalLevel?'All levels complete!':'Level '+(i+1)+' complete!';
  $('#wB').innerHTML=`<span style="font-size:36px;color:var(--gold)">${'★'.repeat(st)}<span style="color:#6b5a48">${'★'.repeat(3-st)}</span></span><br>Time ${$('#tm').textContent} · Hints ${G.hints}<br>+${bonus} 🪙 bonus`;
- $('#wNext').style.display=i+1<LV.length?'':'none';$('#mWin').classList.add('on')}
-$('#wNext').onclick=()=>{$('#mWin').classList.remove('on');play(G.i+1)};
+ $('#wCert').hidden=!finalLevel;$('#wNext').style.display=finalLevel?'none':'';$('#mWin').classList.add('on')}
+$('#wNext').onclick=()=>{if(G&&play(G.i+1))$('#mWin').classList.remove('on')};
 $('#wLv').onclick=()=>{$('#mWin').classList.remove('on');show('levels')};
 $('#wMenu').onclick=()=>{$('#mWin').classList.remove('on');show('menu')};
 document.addEventListener('keydown',e=>{if(e.key=='Escape'){$$('.modal.on').forEach(m=>m.classList.remove('on'))}});

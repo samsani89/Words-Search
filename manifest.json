@@ -2,7 +2,7 @@
   "name": "Perodua Crossword – Engine Word Search",
   "short_name": "Engine Search",
   "description": "An offline word-search game about engine components.",
-  "start_url": "./Perodua Crossword – Engine Word Search.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
   "background_color": "#1d120a",

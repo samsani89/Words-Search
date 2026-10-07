@@ -1,6 +1,6 @@
-const CACHE_NAME = 'perodua-engine-word-search-v3';
-const APP_SHELL = './Perodua Crossword – Engine Word Search.html';
-const ASSETS = [APP_SHELL, './manifest.json'];
+const CACHE_NAME = 'perodua-engine-word-search-v5';
+const APP_SHELL = './index.html';
+const ASSETS = [APP_SHELL, './manifest.json', './cert.jpg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(

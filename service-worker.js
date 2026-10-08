@@ -1,6 +1,6 @@
-const CACHE_NAME = 'perodua-engine-word-search-v6';
+const CACHE_NAME = 'perodua-engine-word-search-v8';
 const APP_SHELL = './index.html';
-const ASSETS = [APP_SHELL, './manifest.json', './cert.jpg'];
+const ASSETS = [APP_SHELL, './manifest.json', './cert.jpg', './game.jpg', './level.jpg', './mainpage.jpg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(

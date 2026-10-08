@@ -13,13 +13,16 @@ body{background:var(--bg);color:var(--cream);font-family:'VT323',ui-monospace,mo
 h1,h2,.px{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
 .screen{display:none;min-height:100%;width:100%}
 .screen.on{display:block}
+#levels{background:url('./level.jpg') center center/cover no-repeat fixed}
+#game{background:url('./game.jpg') center center/cover no-repeat fixed}
 #menu.on{display:flex;align-items:center;justify-content:center;height:100%}
-.stage{position:relative;width:min(100vw,calc(100vh*1.8333));aspect-ratio:1408/768}
-.stage img{width:100%;height:100%;display:block;image-rendering:pixelated}
+.stage{position:relative;width:min(100vw,calc(100vh*1.8333));aspect-ratio:1408/768;background:url('./mainpage.jpg') center/100% 100% no-repeat}
+.stage img{display:none}
 .hot{position:absolute;left:39.4%;width:21%;height:7.5%;background:transparent;border:0;border-radius:10px;cursor:pointer;padding:0}
 .hot:hover,.hot:focus-visible{outline:3px solid var(--gold);background:rgba(255,230,140,.22)}
 .hot:active{background:rgba(255,230,140,.4);transform:scale(.98)}
 .wrap{max-width:1800px;margin:0 auto;padding:18px 14px 40px;background:linear-gradient(#2f6b2a 0,#1f4a1c 100%);min-height:100%}
+#levels .wrap,#game .wrap{max-width:none;min-height:100vh;min-height:100dvh;background:transparent}
 .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .bar h2{font-size:clamp(13px,3.4vw,20px);margin:0;color:var(--gold);flex:1;line-height:1.5}
 .btn{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--cream);background:var(--wood);border:3px solid var(--wood2);border-bottom-width:6px;border-radius:8px;padding:11px 14px;cursor:pointer}
@@ -29,6 +32,9 @@ h1,h2,.px{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .coin{background:var(--wood2);border:3px solid #2b180b;border-radius:8px;padding:6px 10px;color:var(--gold);font-size:22px}
 .panel{background:var(--wood);border:4px solid var(--wood2);border-radius:10px;padding:14px;margin-bottom:12px}
+#levels .lv{background:rgba(74,43,21,.9)}
+#levels .lv:hover:not(:disabled){background:rgba(148,89,46,.96)}
+#game .panel{background:rgba(74,43,21,.9)}
 .lvls{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .lv{text-align:left;background:var(--wood);border:4px solid var(--wood2);border-radius:10px;padding:12px;color:var(--cream);cursor:pointer;font-family:inherit;font-size:22px}
 .lv:hover:not(:disabled){background:#94592e}.lv:disabled{opacity:.5;cursor:not-allowed}
@@ -45,7 +51,7 @@ h1,h2,.px{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
 .words{flex:1;min-width:230px;max-width:340px}
 @media (min-width:1000px){.words{max-width:480px}.words li{font-size:32px;padding:8px 12px}.btn{font-size:15px;padding:16px 22px}.bar h2{font-size:26px}.coin{font-size:30px}.lv{font-size:28px}.lv b{font-size:16px}.row,.ach{font-size:28px}.game{gap:30px}.wrap p{font-size:28px}.words .px{font-size:15px!important}}
 @media (max-width:800px){.c{--z:min(calc((100vw - 40px)/var(--n)),calc((100vh - 360px)/var(--n)),60px)}}
-.words li{list-style:none;padding:5px 8px;margin:4px 0;background:var(--wood2);border-radius:6px}
+.words li{list-style:none;padding:5px 8px;margin:4px 0;background:rgba(43,24,11,.92);border-radius:6px}
 .words li.d{text-decoration:line-through;opacity:.6;color:#9be58f}
 .words ul{margin:0;padding:0}
 .tag{display:inline-block;margin-right:10px}
@@ -123,7 +129,7 @@ const LV=[
 {n:'Top end',s:10,d:3,w:['CAMSHAFT','ROCKER ARM','PUSHROD','LIFTER','MANIFOLD','INJECTOR']},
 {n:'Bottom end',s:12,d:4,w:['CRANKSHAFT','CONROD','FLYWHEEL','OIL PUMP','BEARING','PISTON RING','SUMP']},
 {n:'Cooling and fuel',s:12,d:6,w:['RADIATOR','THERMOSTAT','WATER PUMP','COOLANT','FUEL PUMP','CARBURETOR','TURBO']},
-{n:'Timing system',s:15,d:8,w:['TIMING CHAIN COVER','TIMING BELT','TENSIONER','CRANKSHAFT','CAMSHAFT','SPROCKET']},
+{n:'Timing system',s:16,d:8,w:['TIMING CHAIN COVER','TIMING BELT','TENSIONER','CRANKSHAFT','CAMSHAFT','SPROCKET']},
 {n:'Master mechanic',s:15,d:8,w:['TURBOCHARGER','INTERCOOLER','EXHAUST MANIFOLD','CYLINDER HEAD','FUEL INJECTOR','OIL FILTER','PISTON']}];
 const DIRS=[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
 const ACH=[['first','🔧','First find','Find your first word'],['l1','🚗','Rookie mechanic','Complete level 1'],['speed','⚡','Quick wrench','Finish a level in under 60 seconds'],['nohint','👀','No peeking','Finish a level without hints'],['star3','⭐','Triple star','Earn 3 stars on a level'],['rich','🪙','Piston pockets','Collect 500 coins'],['master','🏆','Master mechanic','Complete all 6 levels']];
@@ -173,11 +179,13 @@ function build(l){const N=l.s,dirs=DIRS.slice(0,l.d);
    ws.sort((a,b)=>l.w.indexOf(a.t)-l.w.indexOf(b.t));return{g,ws}}}
  return null}
 
-function play(i){const l=LV[i],b=build(l);G={i,l,g:b.g,ws:b.ws,t:0,hints:0,sel:null,drag:false,done:false};
+function play(i){if(!Number.isInteger(i)||i<0||i>=LV.length){toast('That level is not available');return false}
+ const l=LV[i],b=build(l);if(!b){toast('Could not build this level. Please try again.');return false}
+ stopT();G={i,l,g:b.g,ws:b.ws,t:0,hints:0,sel:null,drag:false,done:false};
  $('#gt').textContent='Level '+(i+1)+': '+l.n;
  const gr=$('#grid');gr.style.setProperty('--n',l.s);gr.style.gridTemplateColumns=`repeat(${l.s},auto)`;gr.innerHTML='';
  for(let r=0;r<l.s;r++)for(let c=0;c<l.s;c++){const d=document.createElement('div');d.className='c';d.dataset.r=r;d.dataset.c=c;d.textContent=G.g[r][c];gr.appendChild(d)}
- drawWords();show('game');$('#tm').parentElement.style.display=S.o.tmr?'':'none';tick();stopT();timer=setInterval(()=>{G.t++;tick()},1000)}
+ drawWords();show('game');$('#tm').parentElement.style.display=S.o.tmr?'':'none';tick();timer=setInterval(()=>{G.t++;tick()},1000);return true}
 function stopT(){clearInterval(timer);timer=null}
 function tick(){const t=G?G.t:0;$('#tm').textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0')}
 function drawWords(){const u=$('#wl');u.innerHTML='';G.ws.forEach(w=>{const li=document.createElement('li');li.className=w.found?'d':'';li.textContent=S.o.list||w.found?w.t:'•'.repeat(w.k.length);u.appendChild(li)});$('#left').textContent=G.ws.filter(w=>!w.found).length}
@@ -209,7 +217,7 @@ function win(){G.done=true;stopT();const i=G.i,tot=G.ws.reduce((a,w)=>a+w.k.leng
  $('#wT').textContent='Level '+(i+1)+' complete!';
  $('#wB').innerHTML=`<span style="font-size:36px;color:var(--gold)">${'★'.repeat(st)}<span style="color:#6b5a48">${'★'.repeat(3-st)}</span></span><br>Time ${$('#tm').textContent} · Hints ${G.hints}<br>+${bonus} 🪙 bonus`;
  $('#wNext').style.display=i+1<LV.length?'':'none';$('#mWin').classList.add('on')}
-$('#wNext').onclick=()=>{$('#mWin').classList.remove('on');play(G.i+1)};
+$('#wNext').onclick=()=>{if(play(G.i+1))$('#mWin').classList.remove('on')};
 $('#wLv').onclick=()=>{$('#mWin').classList.remove('on');show('levels')};
 $('#wMenu').onclick=()=>{$('#mWin').classList.remove('on');show('menu')};
 document.addEventListener('keydown',e=>{if(e.key=='Escape'){$$('.modal.on').forEach(m=>m.classList.remove('on'))}});

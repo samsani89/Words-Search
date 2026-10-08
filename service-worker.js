@@ -1,4 +1,4 @@
-const CACHE_NAME = 'perodua-engine-word-search-v5';
+const CACHE_NAME = 'perodua-engine-word-search-v6';
 const APP_SHELL = './index.html';
 const ASSETS = [APP_SHELL, './manifest.json', './cert.jpg'];
 

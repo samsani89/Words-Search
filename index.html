@@ -91,7 +91,7 @@ h1,h2,.px{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
   <div id="grid"></div>
   <div class="words">
    <div class="panel"><div class="px" style="font-size:11px;color:var(--gold);margin-bottom:8px">Find <span id="left"></span> words</div><ul id="wl"></ul></div>
-   <button class="btn" id="hint">Hint (20 🪙)</button> <button class="btn r" id="restart">Restart</button>
+   <button class="btn" id="hint">Hint (100 🪙)</button> <button class="btn r" id="restart">Restart</button>
   </div>
  </div>
  <p style="text-align:center">Drag across letters in a straight line – across, down or diagonal.</p>
@@ -204,8 +204,8 @@ const end=()=>{if(!G||!G.drag)return;G.drag=false;const s=G.sel||[];mark(null);i
   if(G.ws.every(w=>w.found))win()}else beep(200,.12)};
 window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
 
-$('#hint').onclick=()=>{if(!G||G.done)return;const w=G.ws.find(w=>!w.found);if(!w)return;if(S.coins<20){toast('Not enough coins for a hint');return}
- S.coins-=20;G.hints++;save();$$('.cn').forEach(e=>e.textContent=S.coins);const p=w.cells[0];cell(p[0],p[1]).classList.add('h');beep(440,.1);toast('Hint: look for '+(S.o.list?w.t:'a '+w.k.length+'-letter word'))};
+$('#hint').onclick=()=>{if(!G||G.done)return;const w=G.ws.find(w=>!w.found);if(!w)return;if(S.coins<100){toast('Not enough coins for a hint');return}
+ S.coins-=100;G.hints++;save();$$('.cn').forEach(e=>e.textContent=S.coins);const p=w.cells[0];cell(p[0],p[1]).classList.add('h');beep(440,.1);toast('Hint: look for '+(S.o.list?w.t:'a '+w.k.length+'-letter word'))};
 $('#restart').onclick=()=>play(G.i);
 
 function win(){G.done=true;stopT();const i=G.i,tot=G.ws.reduce((a,w)=>a+w.k.length,0),par=tot*2.2;
